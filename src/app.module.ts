@@ -1,7 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CatsModule } from './cats/cats.module';
+import { ConfigModule } from '@nestjs/config';
 
+import appConfig from './config/app.config';
+import databaseConfig from './config/database.config';
 @Module({
-  imports: [CatsModule],
+  imports: [
+    ConfigModule.forRoot({
+      load: [appConfig, databaseConfig],
+    }),
+  ],
 })
-export class AppModule {}
+export class AppModule { }
