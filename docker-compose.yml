@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: messagepilot-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: messagepilot
+      POSTGRES_PASSWORD: supersecurepassword
+      POSTGRES_DB: messagepilot_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - messagepilot-net
+
+volumes:
+  postgres_data:
+
+networks:
+  messagepilot-net:
+    driver: bridge
