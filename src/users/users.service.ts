@@ -5,9 +5,21 @@ import { hash } from 'bcrypt';
 
 import { User } from './user.entity';
 import { UserCreateParams } from './interfaces/user-create-params.interface';
+import { FindUserOptions } from './interfaces/find-user-options.interface';
 
 @Injectable()
 export class UsersService {
+  private readonly allFields: (keyof User)[] = [
+    'id',
+    'email',
+    'firstName',
+    'lastName',
+    'password',
+    'lastLoginAt',
+    'createdAt',
+    'updatedAt',
+  ];
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -29,15 +41,39 @@ export class UsersService {
     await this.userRepository.save(user);
   }
 
-  async findUserByEmail(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { email },
+  private async findOneBy<K extends keyof User>(
+    where: Pick<User, K>,
+    options: FindUserOptions = {},
+  ): Promise<User | null> {
+    if (!options.exclude || options.exclude.length === 0) {
+      return this.userRepository.findOne({ where });
+    }
+
+    const fieldsToSelect = this.allFields.filter(
+      (field) => !options.exclude!.includes(field),
+    );
+    const select: Record<string, boolean> = {};
+    for (const field of fieldsToSelect) {
+      select[field] = true;
+    }
+
+    return this.userRepository.findOne({
+      where,
+      select,
     });
   }
 
-  async findUserById(id: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { id },
-    });
+  async findUserByEmail(
+    email: string,
+    options: FindUserOptions = {},
+  ): Promise<User | null> {
+    return await this.findOneBy({ email }, options);
+  }
+
+  async findUserById(
+    id: string,
+    options: FindUserOptions = {},
+  ): Promise<User | null> {
+    return await this.findOneBy({ id }, options);
   }
 }

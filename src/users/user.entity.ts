@@ -20,7 +20,7 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column({ select: false }) // exclude from default queries
+  @Column()
   password: string;
 
   @Column({ nullable: true })
