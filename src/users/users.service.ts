@@ -2,9 +2,9 @@ import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
+
 import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserResponseDto } from './dto/user-response.dto';
+import { UserCreateParams } from './interfaces/user-create-params.interface';
 
 @Injectable()
 export class UsersService {
@@ -13,25 +13,20 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const existingUser = await this.findUserByEmail(createUserDto.email);
+  async createUser(params: UserCreateParams) {
+    const existingUser = await this.findUserByEmail(params.email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
 
-    const hashedPassword = await hash(createUserDto.password, 10);
+    const hashedPassword = await hash(params.password, 10);
 
     const user = this.userRepository.create({
-      ...createUserDto,
+      ...params,
       password: hashedPassword,
     });
 
-    const savedUser = await this.userRepository.save(user);
-
-    return new UserResponseDto({
-      ...savedUser,
-      fullName: `${savedUser.firstName} ${savedUser.lastName}`,
-    });
+    await this.userRepository.save(user);
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
@@ -40,31 +35,9 @@ export class UsersService {
     });
   }
 
-  async findUserByEmailWithPassword(email: string): Promise<User | null> {
-    return await this.userRepository.findOne({
-      where: { email },
-      select: [
-        'id',
-        'email',
-        'firstName',
-        'lastName',
-        'password',
-        'lastLoginAt',
-        'createdAt',
-        'updatedAt',
-      ],
-    });
-  }
-
   async findUserById(id: string): Promise<User | null> {
     return await this.userRepository.findOne({
       where: { id },
-    });
-  }
-
-  async updateLastLogin(userId: string): Promise<void> {
-    await this.userRepository.update(userId, {
-      lastLoginAt: new Date(),
     });
   }
 }
