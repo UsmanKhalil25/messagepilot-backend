@@ -12,8 +12,7 @@ export class UsersService {
   private readonly allFields: (keyof User)[] = [
     'id',
     'email',
-    'firstName',
-    'lastName',
+    'name',
     'password',
     'lastLoginAt',
     'createdAt',
@@ -39,6 +38,9 @@ export class UsersService {
     });
 
     await this.userRepository.save(user);
+    // Remove password before returning
+    const { password, ...publicUser } = user;
+    return publicUser;
   }
 
   private async findOneBy<K extends keyof User>(

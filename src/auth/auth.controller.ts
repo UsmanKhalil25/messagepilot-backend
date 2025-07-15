@@ -1,4 +1,11 @@
-import { Controller, Request, Post, UseGuards, Body } from '@nestjs/common';
+import {
+  Controller,
+  Request,
+  Post,
+  UseGuards,
+  Body,
+  BadRequestException,
+} from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 
 import { AuthService } from './auth.service';
@@ -26,6 +33,10 @@ export class AuthController {
 
   @Post('register')
   async register(@Body() registerUserDto: RegisterUserDto) {
-    return this.userService.createUser(registerUserDto);
+    if (registerUserDto.password !== registerUserDto.confirmPassword) {
+      throw new BadRequestException('Passwords do not match');
+    }
+    const { confirmPassword: _, ...userData } = registerUserDto;
+    return await this.userService.createUser(userData);
   }
 }
