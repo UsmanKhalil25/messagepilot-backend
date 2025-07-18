@@ -6,6 +6,7 @@ import { hash } from 'bcrypt';
 import { User } from './user.entity';
 import { UserCreateParams } from './interfaces/user-create-params.interface';
 import { FindUserOptions } from './interfaces/find-user-options.interface';
+import { PublicUser } from './types/public-user.type';
 
 @Injectable()
 export class UsersService {
@@ -22,9 +23,9 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
-  async createUser(params: UserCreateParams) {
+  async createUser(params: UserCreateParams): Promise<PublicUser> {
     const existingUser = await this.findUserByEmail(params.email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
@@ -78,4 +79,11 @@ export class UsersService {
   ): Promise<User | null> {
     return await this.findOneBy({ id }, options);
   }
+
+  async updateLastLoginAt(userId: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      lastLoginAt: new Date(),
+    });
+  }
+
 }

@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(
     email: string,
@@ -27,7 +27,13 @@ export class AuthService {
   }
 
   login(user: PublicUser) {
-    const payload = { sub: user.id, email: user.email };
-    return { access_token: this.jwtService.sign(payload) };
+    const { id, email } = user;
+    this.userService.updateLastLoginAt(id);
+    const accessToken = this.jwtService.sign({ sub: id, email });
+
+    return {
+      accessToken,
+    };
   }
+
 }
