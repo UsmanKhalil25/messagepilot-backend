@@ -6,6 +6,7 @@ import {
   Body,
   BadRequestException,
   Res,
+  Get,
 } from '@nestjs/common';
 import {
   Request as ExpressRequest,
@@ -17,6 +18,7 @@ import { UsersService } from 'src/users/users.service';
 import { PublicUser } from 'src/users/types/public-user.type';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
+import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
 
@@ -28,7 +30,7 @@ export class AuthController {
     private authService: AuthService,
     private userService: UsersService,
     private configService: ConfigService,
-  ) {}
+  ) { }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -38,12 +40,14 @@ export class AuthController {
     @Res() res: ExpressResponse,
   ) {
     const { accessToken } = await this.authService.login(req.user);
+
     const jwtExpiresIn =
       this.configService.get<string>('auth.jwtExpiresIn') || '1d';
+    const cookieName = "auth-token"
     const maxAge = parseDurationToMs(jwtExpiresIn);
     const validPath = '/';
 
-    res.cookie('access_token', accessToken, {
+    res.cookie(cookieName, accessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'strict',
@@ -67,6 +71,20 @@ export class AuthController {
     return {
       message: 'User created successfully',
       data: user,
+    };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('verify')
+  verifyToken(@Request() req: ExpressRequest & { user: PublicUser }) {
+    return {
+      valid: true,
+      user: {
+        id: req.user.id,
+        email: req.user.email,
+        name: req.user.name,
+      },
+      message: 'Token is valid',
     };
   }
 }
