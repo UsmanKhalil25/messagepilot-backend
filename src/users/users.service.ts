@@ -23,7 +23,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async createUser(params: UserCreateParams): Promise<PublicUser> {
     const existingUser = await this.findUserByEmail(params.email);
@@ -40,7 +40,7 @@ export class UsersService {
 
     await this.userRepository.save(user);
     // Remove password before returning
-    const { password, ...publicUser } = user;
+    const { password: _password, ...publicUser } = user;
     return publicUser;
   }
 
@@ -85,5 +85,4 @@ export class UsersService {
       lastLoginAt: new Date(),
     });
   }
-
 }

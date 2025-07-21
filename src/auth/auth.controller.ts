@@ -32,12 +32,12 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  login(
+  async login(
     @Body() _: LoginUserDto,
     @Request() req: ExpressRequest & { user: PublicUser },
     @Res() res: ExpressResponse,
   ) {
-    const { accessToken } = this.authService.login(req.user);
+    const { accessToken } = await this.authService.login(req.user);
     const jwtExpiresIn =
       this.configService.get<string>('auth.jwtExpiresIn') || '1d';
     const maxAge = parseDurationToMs(jwtExpiresIn);
