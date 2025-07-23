@@ -30,7 +30,7 @@ export class AuthController {
     private authService: AuthService,
     private userService: UsersService,
     private configService: ConfigService,
-  ) { }
+  ) {}
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -43,7 +43,7 @@ export class AuthController {
 
     const jwtExpiresIn =
       this.configService.get<string>('auth.jwtExpiresIn') || '1d';
-    const cookieName = "auth-token"
+    const cookieName = 'auth-token';
     const maxAge = parseDurationToMs(jwtExpiresIn);
     const validPath = '/';
 
