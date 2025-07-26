@@ -4,7 +4,11 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+
+import { Campaign } from 'src/campaigns/campaign.entity';
+import { Contact } from 'src/contacts/contact.entity';
 
 @Entity()
 export class User {
@@ -22,6 +26,12 @@ export class User {
 
   @Column({ nullable: true })
   lastLoginAt?: Date;
+
+  @OneToMany(() => Campaign, (campaign) => campaign.user)
+  campaigns: Campaign[];
+
+  @OneToMany(() => Contact, (contact) => contact.user)
+  contacts: Contact[]
 
   @CreateDateColumn()
   createdAt: Date;

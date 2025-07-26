@@ -7,6 +7,9 @@ import databaseConfig from './config/database.config';
 
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { ContactMethodsModule } from './contact-methods/contact-methods.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { AuthModule } from './auth/auth.module';
     }),
     UsersModule,
     AuthModule,
+    CampaignsModule,
+    ContactsModule,
+    ContactMethodsModule
   ],
 })
-export class AppModule {}
+export class AppModule { }
