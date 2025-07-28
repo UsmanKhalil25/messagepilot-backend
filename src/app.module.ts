@@ -1,6 +1,9 @@
+import * as path from 'path';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
@@ -30,11 +33,19 @@ import { ContactMethodsModule } from './contact-methods/contact-methods.module';
         autoLoadEntities: true,
       }),
     }),
-    UsersModule,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      useFactory: () => ({
+        graphiql: true,
+        context: ({ req, res }) => ({ req, res }),
+        autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
+      }),
+    }),
     AuthModule,
+    UsersModule,
     CampaignsModule,
     ContactsModule,
-    ContactMethodsModule
+    ContactMethodsModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

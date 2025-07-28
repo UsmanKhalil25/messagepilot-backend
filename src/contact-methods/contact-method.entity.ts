@@ -11,13 +11,13 @@ import {
 import { ContactMethodType } from './enums/contact-method-type.enum';
 
 @Entity()
-@Unique(["type", "value"])
+@Unique(['type', 'value'])
 export class ContactMethod {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
-    type: "enum",
+    type: 'enum',
     enum: ContactMethodType,
   })
   type: ContactMethodType;
@@ -26,7 +26,7 @@ export class ContactMethod {
   value: string;
 
   @ManyToOne(() => Contact, (contact) => contact.contactMethods)
-  contact: Contact
+  contact: Contact;
 
   @CreateDateColumn()
   createdAt: Date;

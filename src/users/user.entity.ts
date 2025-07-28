@@ -31,7 +31,7 @@ export class User {
   campaigns: Campaign[];
 
   @OneToMany(() => Contact, (contact) => contact.user)
-  contacts: Contact[]
+  contacts: Contact[];
 
   @CreateDateColumn()
   createdAt: Date;

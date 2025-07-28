@@ -6,4 +6,4 @@ import { Campaign } from './campaign.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Campaign])],
 })
-export class CampaignsModule { }
+export class CampaignsModule {}

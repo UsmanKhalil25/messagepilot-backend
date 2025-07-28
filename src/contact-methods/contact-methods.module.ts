@@ -6,5 +6,4 @@ import { ContactMethod } from './contact-method.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([ContactMethod])],
 })
-export class ContactMethodsModule { }
-
+export class ContactMethodsModule {}

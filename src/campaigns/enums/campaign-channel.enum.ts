@@ -5,4 +5,3 @@ export enum CampaignChannel {
   SLACK = 'slack',
   DISCORD = 'discord',
 }
-

@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   ManyToMany,
-  JoinTable
+  JoinTable,
 } from 'typeorm';
 
 import { User } from 'src/users/user.entity';
@@ -26,17 +26,17 @@ export class Campaign {
   description: string;
 
   @Column({
-    type: "enum",
+    type: 'enum',
     enum: CampaignChannel,
   })
   channelType: CampaignChannel;
 
   @Column({
-    type: "enum",
+    type: 'enum',
     enum: CampaignStatus,
-    default: CampaignStatus.DRAFT
+    default: CampaignStatus.DRAFT,
   })
-  status: CampaignStatus
+  status: CampaignStatus;
 
   @ManyToOne(() => User, (user) => user.campaigns)
   user: User;

@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
   OneToMany,
   ManyToOne,
-  ManyToMany
+  ManyToMany,
 } from 'typeorm';
 
 import { Campaign } from 'src/campaigns/campaign.entity';

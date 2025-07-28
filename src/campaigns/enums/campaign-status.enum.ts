@@ -5,4 +5,3 @@ export enum CampaignStatus {
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
-
