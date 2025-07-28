@@ -37,8 +37,8 @@ import { ContactMethodsModule } from './contact-methods/contact-methods.module';
       driver: ApolloDriver,
       useFactory: () => ({
         graphiql: true,
-        context: ({ req, res }) => ({ req, res }),
         autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
+        include: [UsersModule, CampaignsModule],
       }),
     }),
     AuthModule,

@@ -13,12 +13,6 @@ interface ResponseData {
   data?: unknown;
 }
 
-interface TransformedResponse {
-  statusCode: number;
-  message: string;
-  data: unknown;
-}
-
 @Injectable()
 export class TransformResponseInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
