@@ -12,7 +12,7 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContactsModule } from './contacts/contacts.module';
-import { ContactMethodsModule } from './contact-methods/contact-methods.module';
+import { ContactChannelModule } from './contact-channel/contact-channel.module';
 
 @Module({
   imports: [
@@ -38,14 +38,14 @@ import { ContactMethodsModule } from './contact-methods/contact-methods.module';
       useFactory: () => ({
         graphiql: true,
         autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
-        include: [UsersModule, CampaignsModule],
+        include: [UsersModule, CampaignsModule, ContactsModule],
       }),
     }),
     AuthModule,
     UsersModule,
     CampaignsModule,
     ContactsModule,
-    ContactMethodsModule,
+    ContactChannelModule,
   ],
 })
 export class AppModule {}

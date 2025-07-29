@@ -8,24 +8,25 @@ import {
   UpdateDateColumn,
   ManyToOne,
 } from 'typeorm';
-import { ContactMethodType } from './enums/contact-method-type.enum';
+
+import { ContactType } from './enums/contact-type.enum';
 
 @Entity()
 @Unique(['type', 'value'])
-export class ContactMethod {
+export class ContactChannel {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
     type: 'enum',
-    enum: ContactMethodType,
+    enum: ContactType,
   })
-  type: ContactMethodType;
+  type: ContactType;
 
   @Column()
   value: string;
 
-  @ManyToOne(() => Contact, (contact) => contact.contactMethods)
+  @ManyToOne(() => Contact, (contact) => contact.contactChannels)
   contact: Contact;
 
   @CreateDateColumn()

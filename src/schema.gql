@@ -16,6 +16,84 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type ContactChannel {
+  id: ID!
+  type: ContactType!
+  value: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum ContactType {
+  EMAIL
+  PHONE
+}
+
+type Contact {
+  id: ID!
+  name: String!
+  contactChannels: [ContactChannel!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Campaign {
+  id: ID!
+  title: String!
+  description: String!
+  channelType: CampaignChannel!
+  status: CampaignStatus!
+  contacts: [Contact!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+enum CampaignChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  SLACK
+  DISCORD
+}
+
+enum CampaignStatus {
+  DRAFT
+  QUEUED
+  SENDING
+  COMPLETED
+  FAILED
+}
+
 type Query {
+  getCampaign(id: String!): Campaign!
   currentUser: User
+}
+
+type Mutation {
+  createContact(input: CreateContactInput!): Contact!
+  createCampaign(input: CreateCampaignInput!): Campaign!
+  addContactsToCampaign(input: AddContactsToCampaignInput!): Campaign!
+}
+
+input CreateContactInput {
+  name: String!
+  contactChannels: [CreateContactChannelInput!]!
+}
+
+input CreateContactChannelInput {
+  type: ContactType!
+  value: String!
+}
+
+input CreateCampaignInput {
+  title: String!
+  description: String!
+  channelType: CampaignChannel!
+  status: CampaignStatus
+  contactIds: [String!]
+}
+
+input AddContactsToCampaignInput {
+  campaignId: String!
+  contactIds: [String!]!
 }

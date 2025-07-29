@@ -1,5 +1,3 @@
-import { ContactMethod } from 'src/contact-methods/contact-method.entity';
-import { User } from 'src/users/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -12,6 +10,8 @@ import {
 } from 'typeorm';
 
 import { Campaign } from 'src/campaigns/campaign.entity';
+import { User } from 'src/users/user.entity';
+import { ContactChannel } from 'src/contact-channel/contact-channel.entity';
 
 @Entity()
 export class Contact {
@@ -21,8 +21,8 @@ export class Contact {
   @Column()
   name: string;
 
-  @OneToMany(() => ContactMethod, (contactMethod) => contactMethod.contact)
-  contactMethods: ContactMethod[];
+  @OneToMany(() => ContactChannel, (contactChannel) => contactChannel.contact)
+  contactChannels: ContactChannel[];
 
   @ManyToOne(() => User, (user) => user.contacts)
   user: User;

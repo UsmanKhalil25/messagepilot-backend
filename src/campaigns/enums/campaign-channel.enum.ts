@@ -1,3 +1,5 @@
+import { registerEnumType } from '@nestjs/graphql';
+
 export enum CampaignChannel {
   EMAIL = 'email',
   SMS = 'sms',
@@ -5,3 +7,7 @@ export enum CampaignChannel {
   SLACK = 'slack',
   DISCORD = 'discord',
 }
+
+registerEnumType(CampaignChannel, {
+  name: 'CampaignChannel',
+});

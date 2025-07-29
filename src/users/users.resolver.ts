@@ -16,6 +16,6 @@ export class UsersResolver {
     @Context() context: { req: { user: JwtPayload } },
   ): Promise<User | null> {
     const user = context.req.user;
-    return this.usersService.findUserById(user.sub);
+    return this.usersService.findById(user.sub);
   }
 }

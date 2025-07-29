@@ -20,7 +20,7 @@ export class Campaign {
   id: string;
 
   @Column()
-  name: string;
+  title: string;
 
   @Column({ type: 'text' })
   description: string;
@@ -44,6 +44,7 @@ export class Campaign {
   @ManyToMany(() => Contact, (contact) => contact.campaigns)
   @JoinTable()
   contacts: Contact[];
+
   @CreateDateColumn()
   createdAt: Date;
 
