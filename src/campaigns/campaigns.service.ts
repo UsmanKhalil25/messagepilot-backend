@@ -14,6 +14,11 @@ import { Contact } from 'src/contacts/contact.entity';
 import { User } from 'src/users/user.entity';
 import { AddContactsToCampaignInput } from './dto/add-contacts-to-campaign.input';
 
+const CREATABLE_CAMPAIGN_STATUSES = [
+  CampaignStatus.DRAFT,
+  CampaignStatus.QUEUED,
+];
+
 @Injectable()
 export class CampaignsService {
   constructor(
@@ -37,6 +42,11 @@ export class CampaignsService {
       throw new BadRequestException('Campaign description is required');
     }
 
+    if (input.status && !CREATABLE_CAMPAIGN_STATUSES.includes(input.status)) {
+      throw new BadRequestException(
+        `Invalid status "${input.status}" for campaign creation. Only "draft" and "queued" are allowed.`,
+      );
+    }
     return await this.campaignsRepository.manager.transaction(
       async (manager) => {
         try {

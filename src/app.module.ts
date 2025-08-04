@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactChannelModule } from './contact-channel/contact-channel.module';
+import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware';
 
 @Module({
   imports: [
@@ -48,4 +49,14 @@ import { ContactChannelModule } from './contact-channel/contact-channel.module';
     ContactChannelModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthTokenMiddleware)
+      .exclude(
+        { path: '/api/auth/login', method: RequestMethod.POST },
+        { path: '/api/auth/register', method: RequestMethod.POST },
+      )
+      .forRoutes('*');
+  }
+}

@@ -59,7 +59,7 @@ enum CampaignChannel {
 enum CampaignStatus {
   DRAFT
   QUEUED
-  SENDING
+  ACTIVE
   COMPLETED
   FAILED
 }

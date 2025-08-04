@@ -3,7 +3,7 @@ import { registerEnumType } from '@nestjs/graphql';
 export enum CampaignStatus {
   DRAFT = 'draft',
   QUEUED = 'queued',
-  SENDING = 'sending',
+  ACTIVE = 'active',
   COMPLETED = 'completed',
   FAILED = 'failed',
 }
