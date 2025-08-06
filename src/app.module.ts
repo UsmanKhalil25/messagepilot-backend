@@ -14,6 +14,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactChannelModule } from './contact-channel/contact-channel.module';
 import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 @Module({
   imports: [
@@ -37,7 +38,8 @@ import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware'
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
       useFactory: () => ({
-        graphiql: true,
+        playground: false,
+        plugins: [ApolloServerPluginLandingPageLocalDefault()],
         autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
         include: [UsersModule, CampaignsModule, ContactsModule],
       }),
