@@ -5,14 +5,29 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import {
+  Repository,
+  In,
+  ILike,
+  FindOptionsWhere,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 
+import { SortOrder } from 'src/commom/enums/sort-order.enum';
+import { CampaignSortBy } from './enums/campaign-sort-by.enum';
 import { CampaignStatus } from './enums/campaign-status.enum';
 import { CreateCampaignInput } from './dto/create-campaign.input';
 import { Campaign } from './campaign.entity';
 import { Contact } from 'src/contacts/contact.entity';
 import { User } from 'src/users/user.entity';
+
 import { AddContactsToCampaignInput } from './dto/add-contacts-to-campaign.input';
+import { PaginationArgs } from 'src/commom/dto/pagination-args.dto';
+import { CampaignFiltersInput } from './dto/campaign-filters.input';
+import { CampaignsResponse } from './dto/campaigns-response.dto';
+import { isValidDateString } from 'src/commom/utils/date.utils';
 
 const CREATABLE_CAMPAIGN_STATUSES = [
   CampaignStatus.DRAFT,
@@ -92,6 +107,96 @@ export class CampaignsService {
         }
       },
     );
+  }
+
+  async findMany(
+    userId: string,
+    paginationArgs: PaginationArgs,
+    filters?: CampaignFiltersInput,
+  ): Promise<CampaignsResponse | void> {
+    if (!userId) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    const { page = 1, limit = 10 } = paginationArgs;
+    const skip = (page - 1) * limit;
+
+    const where: FindOptionsWhere<Campaign> = {
+      user: { id: userId },
+    };
+    if (filters) {
+      const { status, search, createdAfter, createdBefore } = filters;
+
+      if (status) {
+        where.status = status;
+      }
+
+      if (search) {
+        where.title = ILike(`%${search}%`);
+      }
+
+      if (createdAfter && !isValidDateString(createdAfter)) {
+        throw new BadRequestException('Invalid createdAfter date');
+      }
+
+      if (createdBefore && !isValidDateString(createdBefore)) {
+        throw new BadRequestException('Invalid createdBefore date');
+      }
+
+      if (createdAfter && createdBefore) {
+        where.createdAt = Between(
+          new Date(createdAfter),
+          new Date(createdBefore),
+        );
+      } else if (createdAfter) {
+        where.createdAt = MoreThanOrEqual(new Date(createdAfter));
+      } else if (createdBefore) {
+        where.createdAt = LessThanOrEqual(new Date(createdBefore));
+      }
+    }
+    const sortFieldMap: Record<CampaignSortBy, keyof Campaign> = {
+      [CampaignSortBy.CREATED_AT]: 'createdAt',
+      [CampaignSortBy.UPDATED_AT]: 'updatedAt',
+      [CampaignSortBy.NAME]: 'title',
+      [CampaignSortBy.STATUS]: 'status',
+    };
+    const sortBy: CampaignSortBy =
+      filters?.sortBy && Object.values(CampaignSortBy).includes(filters.sortBy)
+        ? filters.sortBy
+        : CampaignSortBy.CREATED_AT;
+
+    const sortOrder: SortOrder =
+      filters?.sortOrder && Object.values(SortOrder).includes(filters.sortOrder)
+        ? filters.sortOrder
+        : SortOrder.DESC;
+
+    const order: Record<string, 'ASC' | 'DESC'> = {
+      [sortFieldMap[sortBy]]: sortOrder,
+    };
+
+    const [campaigns, total] = await this.campaignsRepository.findAndCount({
+      where,
+      relations: ['user', 'contacts', 'contacts.contactChannels'],
+      order,
+      skip,
+      take: limit,
+    });
+
+    const totalPages = Math.ceil(total / limit);
+    const hasNextPage = page < totalPages;
+    const hasPreviousPage = page > 1;
+
+    return {
+      campaigns,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNextPage,
+        hasPreviousPage,
+      },
+    };
   }
 
   async addContacts(
