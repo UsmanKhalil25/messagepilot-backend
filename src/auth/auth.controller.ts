@@ -7,6 +7,7 @@ import {
   BadRequestException,
   Res,
   Get,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   Request as ExpressRequest,
@@ -21,10 +22,12 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RegisterUserDto } from './dto/register-user.dto';
+import { RestResponseInterceptor } from './interceptors/rest-response.interceptor';
 
 import { parseDurationToMs } from 'src/commom/utils/time.util';
 
-@Controller('auth')
+@Controller('api/auth')
+@UseInterceptors(RestResponseInterceptor)
 export class AuthController {
   constructor(
     private authService: AuthService,

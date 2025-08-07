@@ -16,7 +16,7 @@ export class AuthService {
     email: string,
     plainPassword: string,
   ): Promise<PublicUser | null> {
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.findByEmail(email);
     if (!user) return null;
 
     const isPasswordValid = await compare(plainPassword, user.password);

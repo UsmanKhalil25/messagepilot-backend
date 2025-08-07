@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { hash } from 'bcrypt';
@@ -7,7 +11,6 @@ import { User } from './user.entity';
 import { UserCreateParams } from './interfaces/user-create-params.interface';
 import { FindUserOptions } from './interfaces/find-user-options.interface';
 import { PublicUser } from './types/public-user.type';
-
 @Injectable()
 export class UsersService {
   private readonly allFields: (keyof User)[] = [
@@ -26,7 +29,7 @@ export class UsersService {
   ) {}
 
   async createUser(params: UserCreateParams): Promise<PublicUser> {
-    const existingUser = await this.findUserByEmail(params.email);
+    const existingUser = await this.findByEmail(params.email);
     if (existingUser) {
       throw new ConflictException('User with this email already exists');
     }
@@ -66,14 +69,14 @@ export class UsersService {
     });
   }
 
-  async findUserByEmail(
+  async findByEmail(
     email: string,
     options: FindUserOptions = {},
   ): Promise<User | null> {
     return await this.findOneBy({ email }, options);
   }
 
-  async findUserById(
+  async findById(
     id: string,
     options: FindUserOptions = {},
   ): Promise<User | null> {
@@ -81,8 +84,13 @@ export class UsersService {
   }
 
   async updateLastLoginAt(userId: string): Promise<void> {
-    await this.userRepository.update(userId, {
-      lastLoginAt: new Date(),
-    });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    user.lastLoginAt = new Date();
+    await this.userRepository.save(user);
   }
 }

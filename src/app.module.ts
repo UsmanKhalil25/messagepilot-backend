@@ -1,12 +1,20 @@
-import { Module } from '@nestjs/common';
+import * as path from 'path';
+import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { ContactsModule } from './contacts/contacts.module';
+import { ContactChannelModule } from './contact-channel/contact-channel.module';
+import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 @Module({
   imports: [
@@ -27,8 +35,30 @@ import { AuthModule } from './auth/auth.module';
         autoLoadEntities: true,
       }),
     }),
-    UsersModule,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      useFactory: () => ({
+        playground: false,
+        plugins: [ApolloServerPluginLandingPageLocalDefault()],
+        autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
+        include: [UsersModule, CampaignsModule, ContactsModule],
+      }),
+    }),
     AuthModule,
+    UsersModule,
+    CampaignsModule,
+    ContactsModule,
+    ContactChannelModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthTokenMiddleware)
+      .exclude(
+        { path: '/api/auth/login', method: RequestMethod.POST },
+        { path: '/api/auth/register', method: RequestMethod.POST },
+      )
+      .forRoutes('*');
+  }
+}
