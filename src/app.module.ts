@@ -1,5 +1,7 @@
 import * as path from 'path';
-import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common';
+
+import { Request, Response } from 'express';
+import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -13,7 +15,6 @@ import { AuthModule } from './auth/auth.module';
 import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactChannelModule } from './contact-channel/contact-channel.module';
-import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 
 @Module({
@@ -26,22 +27,32 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.name'),
-        synchronize: configService.get('database.synchronization'),
+        host: configService.get<string>('database.host'),
+        port: configService.get<number>('database.port'),
+        username: configService.get<string>('database.username'),
+        password: configService.get<string>('database.password'),
+        database: configService.get<string>('database.name'),
+        synchronize: configService.get<boolean>('database.synchronization'),
         autoLoadEntities: true,
       }),
     }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      useFactory: () => ({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
         playground: false,
         plugins: [ApolloServerPluginLandingPageLocalDefault()],
         autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
-        include: [UsersModule, CampaignsModule, ContactsModule],
+        include: [AuthModule, UsersModule, CampaignsModule, ContactsModule],
+        cors: {
+          origin: configService.get<string>('app.corsOrigin'),
+          credentials: true,
+        },
+        context: ({ req, res }: { req: Request; res: Response }) => ({
+          req,
+          res,
+        }),
       }),
     }),
     AuthModule,
@@ -51,14 +62,4 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
     ContactChannelModule,
   ],
 })
-export class AppModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(AuthTokenMiddleware)
-      .exclude(
-        { path: '/api/auth/login', method: RequestMethod.POST },
-        { path: '/api/auth/register', method: RequestMethod.POST },
-      )
-      .forRoutes('*');
-  }
-}
+export class AppModule {}
