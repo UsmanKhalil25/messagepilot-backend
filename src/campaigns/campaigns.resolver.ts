@@ -1,13 +1,13 @@
 import { Query, Mutation, Resolver, Context, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
-import { AddContactsToCampaignInput } from './dto/add-contacts-to-campaign.input';
-import { CampaignsResponse } from './dto/campaigns-response.dto';
-import { PaginationArgs } from 'src/commom/dto/pagination-args.dto';
-import { CampaignFiltersInput } from './dto/campaign-filters.input';
-import { CreateCampaignInput } from './dto/create-campaign.input';
+import { AddContactsToCampaignInput } from './inputs/add-contacts-to-campaign.input';
+import { CampaignsResponse } from './types/campaigns-response.type';
+import { PaginationArgs } from 'src/commom/inputs/pagination-args.input';
+import { CampaignFiltersInput } from './inputs/campaign-filters.input';
+import { CreateCampaignInput } from './inputs/create-campaign.input';
 
-import { Campaign } from './models/campaign.model';
+import { Campaign } from './types/campaign.type';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CampaignsService } from './campaigns.service';
 import { JwtPayload } from 'src/commom/interfaces/jwt-payload.interface';

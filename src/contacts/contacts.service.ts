@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Contact } from './contact.entity';
 import { ContactChannel } from 'src/contact-channel/contact-channel.entity';
 import { User } from 'src/users/user.entity';
-import { CreateContactInput } from './dto/create-contact.input';
+import { CreateContactInput } from './inputs/create-contact.input';
 
 @Injectable()
 export class ContactsService {

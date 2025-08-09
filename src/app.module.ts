@@ -1,7 +1,7 @@
 import * as path from 'path';
 
 import { Request, Response } from 'express';
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GraphQLModule } from '@nestjs/graphql';
@@ -16,6 +16,7 @@ import { CampaignsModule } from './campaigns/campaigns.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { ContactChannelModule } from './contact-channel/contact-channel.module';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware';
 
 @Module({
   imports: [
@@ -62,4 +63,8 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
     ContactChannelModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthTokenMiddleware).forRoutes('*');
+  }
+}

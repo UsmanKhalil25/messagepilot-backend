@@ -1,7 +1,7 @@
 import { Query, Resolver, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 
-import { User } from './models/user.model';
+import { User } from './types/user.type';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { JwtPayload } from '../commom/interfaces/jwt-payload.interface';

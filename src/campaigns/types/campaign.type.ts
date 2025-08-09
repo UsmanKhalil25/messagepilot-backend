@@ -2,7 +2,7 @@ import { Field, ObjectType, ID } from '@nestjs/graphql';
 
 import { CampaignChannel } from '../enums/campaign-channel.enum';
 import { CampaignStatus } from '../enums/campaign-status.enum';
-import { Contact } from 'src/contacts/models/contact-model';
+import { Contact } from 'src/contacts/types/contact.type';
 
 @ObjectType()
 export class Campaign {

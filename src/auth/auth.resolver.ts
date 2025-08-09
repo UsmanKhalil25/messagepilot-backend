@@ -5,10 +5,10 @@ import { Response } from 'express';
 
 import { AuthService } from './auth.service';
 import { UsersService } from 'src/users/users.service';
-import { LoginUserInput } from './dto/login-user.input';
-import { RegisterUserInput } from './dto/register-user.input';
-import { LoginResponse } from './dto/login-response.dto';
-import { RegisterResponse } from './dto/register-response.dto';
+import { LoginUserInput } from './inputs/login-user.input';
+import { RegisterUserInput } from './inputs/register-user.input';
+import { LoginResponse } from './types/login-response.type';
+import { RegisterResponse } from './types/register-response.type';
 import { PublicUser } from 'src/users/types/public-user.type';
 import { GqlLocalAuthGuard } from './gql-local-auth.guard';
 

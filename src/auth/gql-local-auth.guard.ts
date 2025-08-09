@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthService } from './auth.service';
-import { LoginUserInput } from './dto/login-user.input';
+import { LoginUserInput } from './inputs/login-user.input';
 import { Request } from 'express';
 import { PublicUser } from 'src/users/types/public-user.type';
 

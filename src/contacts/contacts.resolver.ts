@@ -3,9 +3,9 @@ import { UseGuards } from '@nestjs/common';
 
 import { ContactsService } from './contacts.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { CreateContactInput } from './dto/create-contact.input';
+import { CreateContactInput } from './inputs/create-contact.input';
 import { JwtPayload } from 'src/commom/interfaces/jwt-payload.interface';
-import { Contact } from './models/contact-model';
+import { Contact } from './types/contact.type';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
