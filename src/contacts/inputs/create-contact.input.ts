@@ -1,7 +1,7 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, ValidateNested, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
-import { CreateContactChannelInput } from 'src/contact-channel/dto/create-contact-channel.input';
+import { CreateContactChannelInput } from 'src/contact-channel/inputs/create-contact-channel.input';
 
 @InputType()
 export class CreateContactInput {

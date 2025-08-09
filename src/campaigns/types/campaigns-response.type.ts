@@ -1,7 +1,7 @@
 import { ObjectType, Field } from '@nestjs/graphql';
 
-import { PaginationInfo } from 'src/commom/dto/paginated-info.dto';
-import { Campaign } from '../models/campaign.model';
+import { PaginationInfo } from 'src/commom/types/pagination-info.type';
+import { Campaign } from './campaign.type';
 
 @ObjectType()
 export class CampaignsResponse {

@@ -23,7 +23,7 @@ export class AuthService {
     if (!isPasswordValid) return null;
 
     const { password: _, ...result } = user;
-    return result;
+    return result as PublicUser;
   }
 
   async login(user: PublicUser) {

@@ -1,5 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
-import { ContactChannel } from 'src/contact-channel/models/contact-channel.model';
+import { ContactChannel } from 'src/contact-channel/types/contact-channel.type';
 
 @ObjectType()
 export class Contact {

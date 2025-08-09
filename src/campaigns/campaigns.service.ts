@@ -18,15 +18,15 @@ import {
 import { SortOrder } from 'src/commom/enums/sort-order.enum';
 import { CampaignSortBy } from './enums/campaign-sort-by.enum';
 import { CampaignStatus } from './enums/campaign-status.enum';
-import { CreateCampaignInput } from './dto/create-campaign.input';
+import { CreateCampaignInput } from './inputs/create-campaign.input';
 import { Campaign } from './campaign.entity';
 import { Contact } from 'src/contacts/contact.entity';
 import { User } from 'src/users/user.entity';
 
-import { AddContactsToCampaignInput } from './dto/add-contacts-to-campaign.input';
-import { PaginationArgs } from 'src/commom/dto/pagination-args.dto';
-import { CampaignFiltersInput } from './dto/campaign-filters.input';
-import { CampaignsResponse } from './dto/campaigns-response.dto';
+import { AddContactsToCampaignInput } from './inputs/add-contacts-to-campaign.input';
+import { PaginationArgs } from 'src/commom/inputs/pagination-args.input';
+import { CampaignFiltersInput } from './inputs/campaign-filters.input';
+import { CampaignsResponse } from './types/campaigns-response.type';
 import { isValidDateString } from 'src/commom/utils/date.utils';
 
 const CREATABLE_CAMPAIGN_STATUSES = [

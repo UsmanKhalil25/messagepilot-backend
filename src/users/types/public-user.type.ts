@@ -1,3 +1,22 @@
-import { User } from '../user.entity';
+import { Field, ObjectType } from '@nestjs/graphql';
 
-export type PublicUser = Omit<User, 'password'>;
+@ObjectType()
+export class PublicUser {
+  @Field()
+  id: string;
+
+  @Field()
+  email: string;
+
+  @Field()
+  name: string;
+
+  @Field({ nullable: true })
+  lastLoginAt?: Date;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+}
