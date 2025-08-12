@@ -13,11 +13,11 @@ export class ContactsResolver {
 
   @Mutation(() => Contact)
   @UseGuards(JwtAuthGuard)
-  createContact(
+  async createContact(
     @Args('input') input: CreateContactInput,
     @Context() context: { req: { user: JwtPayload } },
   ) {
     const userId = context.req.user.sub;
-    return this.contactsService.createContact(input, userId);
+    return await this.contactsService.createContact(input, userId);
   }
 }

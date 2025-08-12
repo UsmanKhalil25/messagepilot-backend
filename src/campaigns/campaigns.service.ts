@@ -28,6 +28,12 @@ import { PaginationArgs } from 'src/commom/inputs/pagination-args.input';
 import { CampaignFiltersInput } from './inputs/campaign-filters.input';
 import { CampaignsResponse } from './types/campaigns-response.type';
 import { isValidDateString } from 'src/commom/utils/date.utils';
+import {
+  CampaignChannelStats,
+  CampaignStats,
+  CampaignStatusStats,
+} from './types/campaign-stats.type';
+import { CampaignChannel } from './enums/campaign-channel.enum';
 
 const CREATABLE_CAMPAIGN_STATUSES = [
   CampaignStatus.DRAFT,
@@ -170,7 +176,7 @@ export class CampaignsService {
         ? filters.sortOrder
         : SortOrder.DESC;
 
-    const order: Record<string, 'ASC' | 'DESC'> = {
+    const order: Record<string, 'asc' | 'desc'> = {
       [sortFieldMap[sortBy]]: sortOrder,
     };
 
@@ -305,6 +311,55 @@ export class CampaignsService {
 
       throw new InternalServerErrorException(
         'Failed to retrieve campaign',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
+  async getCampaignsStats(userId: string): Promise<CampaignStats> {
+    if (!userId) {
+      throw new BadRequestException('User ID is required');
+    }
+
+    try {
+      const results = await this.campaignsRepository
+        .createQueryBuilder('campaign')
+        .select([
+          'COUNT(*) as totalCampaigns',
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) as draftCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) as queuedCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) as activeCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) as completedCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) as failedCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) as emailCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) as smsCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) as whatsappCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) as slackCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) as discordCount`,
+        ])
+        .where('campaign.userId = :userId', { userId })
+        .getRawOne();
+
+      return {
+        totalCampaigns: parseInt(results.totalcampaigns) || 0,
+        campaignsByStatus: {
+          draft: parseInt(results.draftcount) || 0,
+          queued: parseInt(results.queuedcount) || 0,
+          active: parseInt(results.activecount) || 0,
+          completed: parseInt(results.completedcount) || 0,
+          failed: parseInt(results.failedcount) || 0,
+        },
+        campaignsByChannel: {
+          email: parseInt(results.emailcount) || 0,
+          sms: parseInt(results.smscount) || 0,
+          whatsapp: parseInt(results.whatsappcount) || 0,
+          slack: parseInt(results.slackcount) || 0,
+          discord: parseInt(results.discordcount) || 0,
+        },
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(
+        'Failed to retrieve campaign statistics',
         error instanceof Error ? error.message : String(error),
       );
     }
