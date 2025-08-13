@@ -28,11 +28,7 @@ import { PaginationArgs } from 'src/commom/inputs/pagination-args.input';
 import { CampaignFiltersInput } from './inputs/campaign-filters.input';
 import { CampaignsResponse } from './types/campaigns-response.type';
 import { isValidDateString } from 'src/commom/utils/date.utils';
-import {
-  CampaignChannelStats,
-  CampaignStats,
-  CampaignStatusStats,
-} from './types/campaign-stats.type';
+import { CampaignStats } from './types/campaign-stats.type';
 import { CampaignChannel } from './enums/campaign-channel.enum';
 
 const CREATABLE_CAMPAIGN_STATUSES = [
@@ -325,36 +321,48 @@ export class CampaignsService {
       const results = await this.campaignsRepository
         .createQueryBuilder('campaign')
         .select([
-          'COUNT(*) as totalCampaigns',
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) as draftCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) as queuedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) as activeCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) as completedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) as failedCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) as emailCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) as smsCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) as whatsappCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) as slackCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) as discordCount`,
+          'COUNT(*) AS totalCampaigns',
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) AS draftCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) AS queuedCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS activeCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS completedCount`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS failedCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) AS emailCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) AS smsCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) AS whatsappCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) AS slackCount`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) AS discordCount`,
         ])
         .where('campaign.userId = :userId', { userId })
-        .getRawOne();
+        .getRawOne<{
+          totalCampaigns: string;
+          draftCount: string;
+          queuedCount: string;
+          activeCount: string;
+          completedCount: string;
+          failedCount: string;
+          emailCount: string;
+          smsCount: string;
+          whatsappCount: string;
+          slackCount: string;
+          discordCount: string;
+        }>();
 
       return {
-        totalCampaigns: parseInt(results.totalcampaigns) || 0,
+        totalCampaigns: Number(results?.totalCampaigns) || 0,
         campaignsByStatus: {
-          draft: parseInt(results.draftcount) || 0,
-          queued: parseInt(results.queuedcount) || 0,
-          active: parseInt(results.activecount) || 0,
-          completed: parseInt(results.completedcount) || 0,
-          failed: parseInt(results.failedcount) || 0,
+          draft: Number(results?.draftCount) || 0,
+          queued: Number(results?.queuedCount) || 0,
+          active: Number(results?.activeCount) || 0,
+          completed: Number(results?.completedCount) || 0,
+          failed: Number(results?.failedCount) || 0,
         },
         campaignsByChannel: {
-          email: parseInt(results.emailcount) || 0,
-          sms: parseInt(results.smscount) || 0,
-          whatsapp: parseInt(results.whatsappcount) || 0,
-          slack: parseInt(results.slackcount) || 0,
-          discord: parseInt(results.discordcount) || 0,
+          email: Number(results?.emailCount) || 0,
+          sms: Number(results?.smsCount) || 0,
+          whatsapp: Number(results?.whatsappCount) || 0,
+          slack: Number(results?.slackCount) || 0,
+          discord: Number(results?.discordCount) || 0,
         },
       };
     } catch (error) {
