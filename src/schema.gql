@@ -97,9 +97,32 @@ type CampaignsResponse {
   pagination: PaginationInfo!
 }
 
+type CampaignStatusStats {
+  draft: Int!
+  queued: Int!
+  active: Int!
+  completed: Int!
+  failed: Int!
+}
+
+type CampaignChannelStats {
+  email: Int!
+  sms: Int!
+  whatsapp: Int!
+  slack: Int!
+  discord: Int!
+}
+
+type CampaignStats {
+  totalCampaigns: Int!
+  campaignsByStatus: CampaignStatusStats!
+  campaignsByChannel: CampaignChannelStats!
+}
+
 type Query {
   campaign(id: String!): Campaign!
   campaigns(page: Int = 1, limit: Int = 20, filters: CampaignFiltersInput): CampaignsResponse!
+  campaignStats: CampaignStats!
   currentUser: User
 }
 

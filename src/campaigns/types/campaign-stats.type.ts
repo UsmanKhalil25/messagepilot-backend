@@ -46,7 +46,4 @@ export class CampaignStats {
 
   @Field(() => CampaignChannelStats)
   campaignsByChannel: CampaignChannelStats;
-
-  @Field(() => Int)
-  totalContacts: number;
 }

@@ -36,11 +36,15 @@ export class AuthResolver {
     const cookieName = 'auth-token';
     const maxAge = parseDurationToMs(jwtExpiresIn);
     const validPath = '/';
+    const nodeEnv =
+      this.configService.get<string>('app.nodeEnv') || 'development';
+    const isProd = nodeEnv === 'production';
+    const sameSite: 'lax' | 'strict' | 'none' = isProd ? 'none' : 'lax';
 
     context.res.cookie(cookieName, accessToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite,
       maxAge,
       path: validPath,
     });
