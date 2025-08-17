@@ -6,7 +6,8 @@ import {
   IsArray,
 } from 'class-validator';
 import { InputType, Field } from '@nestjs/graphql';
-import { CampaignChannel } from '../enums/campaign-channel.enum';
+
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 import { CampaignStatus } from '../enums/campaign-status.enum';
 
 @InputType()
@@ -21,9 +22,9 @@ export class CreateCampaignInput {
   @IsNotEmpty()
   description: string;
 
-  @Field(() => CampaignChannel)
-  @IsEnum(CampaignChannel)
-  channelType: CampaignChannel;
+  @Field(() => CommunicationChannel)
+  @IsEnum(CommunicationChannel)
+  channelType: CommunicationChannel;
 
   @Field(() => CampaignStatus, { nullable: true })
   @IsEnum(CampaignStatus)

@@ -1,9 +1,9 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
 
-import { CampaignChannel } from '../enums/campaign-channel.enum';
 import { CampaignStatus } from '../enums/campaign-status.enum';
 import { Contact } from 'src/contacts/types/contact.type';
 import { PublicUser } from 'src/users/types/public-user.type';
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 
 @ObjectType()
 export class Campaign {
@@ -16,8 +16,8 @@ export class Campaign {
   @Field()
   description: string;
 
-  @Field(() => CampaignChannel)
-  channelType: CampaignChannel;
+  @Field(() => CommunicationChannel)
+  channelType: CommunicationChannel;
 
   @Field(() => CampaignStatus)
   status: CampaignStatus;

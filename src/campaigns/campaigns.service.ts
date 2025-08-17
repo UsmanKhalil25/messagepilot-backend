@@ -29,7 +29,7 @@ import { CampaignFiltersInput } from './inputs/campaign-filters.input';
 import { CampaignsResponse } from './types/campaigns-response.type';
 import { isValidDateString } from 'src/commom/utils/date.utils';
 import { CampaignStats } from './types/campaign-stats.type';
-import { CampaignChannel } from './enums/campaign-channel.enum';
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 
 const CREATABLE_CAMPAIGN_STATUSES = [
   CampaignStatus.DRAFT,
@@ -357,11 +357,8 @@ export class CampaignsService {
           `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS "activeCount"`,
           `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS "completedCount"`,
           `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS "failedCount"`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) AS "emailCount"`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) AS "smsCount"`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) AS "whatsappCount"`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) AS "slackCount"`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) AS "discordCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CommunicationChannel.EMAIL}' THEN 1 ELSE 0 END) AS "emailCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CommunicationChannel.SMS}' THEN 1 ELSE 0 END) AS "smsCount"`,
         ])
         .where('campaign.userId = :userId', { userId })
         .getRawOne<{
@@ -373,9 +370,6 @@ export class CampaignsService {
           failedCount: string;
           emailCount: string;
           smsCount: string;
-          whatsappCount: string;
-          slackCount: string;
-          discordCount: string;
         }>();
 
       return {
@@ -390,9 +384,6 @@ export class CampaignsService {
         campaignsByChannel: {
           email: Number(results?.emailCount) || 0,
           sms: Number(results?.smsCount) || 0,
-          whatsapp: Number(results?.whatsappCount) || 0,
-          slack: Number(results?.slackCount) || 0,
-          discord: Number(results?.discordCount) || 0,
         },
       };
     } catch (error) {

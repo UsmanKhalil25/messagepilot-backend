@@ -25,15 +25,6 @@ export class CampaignChannelStats {
 
   @Field(() => Int)
   sms: number;
-
-  @Field(() => Int)
-  whatsapp: number;
-
-  @Field(() => Int)
-  slack: number;
-
-  @Field(() => Int)
-  discord: number;
 }
 
 @ObjectType()

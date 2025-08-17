@@ -28,7 +28,7 @@ export class ContactsResolver {
 
   @Query(() => ContactsResponse)
   @UseGuards(JwtAuthGuard)
-  async campaigns(
+  async contacts(
     @Context() context: { req: { user: JwtPayload } },
     @Args() paginationArgs: PaginationArgs,
     @Args('filters', { nullable: true }) filters?: ContactFilterInput,
