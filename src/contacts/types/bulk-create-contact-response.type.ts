@@ -1,14 +1,11 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Contact } from '../contact.entity';
-import { CreateContactInput } from '../inputs/create-contact.input';
+
+import { Contact } from './contact.type';
 
 @ObjectType()
 export class BulkCreateContactError {
   @Field(() => Int)
   index: number;
-
-  @Field(() => CreateContactInput)
-  contact: CreateContactInput;
 
   @Field()
   error: string;

@@ -348,7 +348,6 @@ export class ContactsService {
             if (hasConflict) {
               result.errors.push({
                 index,
-                contact,
                 error: `Contact "${contact.name}" already exists with conflicting channels`,
               });
               continue;
@@ -364,7 +363,6 @@ export class ContactsService {
           if (conflictingChannel) {
             result.errors.push({
               index,
-              contact,
               error: `${conflictingChannel.type} "${conflictingChannel.value}" is already in use`,
             });
             continue;
@@ -385,7 +383,6 @@ export class ContactsService {
           if (duplicateInBatch) {
             result.errors.push({
               index,
-              contact,
               error: `Duplicate contact or channel found within batch`,
             });
             continue;

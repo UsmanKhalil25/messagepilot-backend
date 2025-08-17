@@ -61,6 +61,7 @@ type Contact {
   id: ID!
   name: String!
   contactChannels: [ContactChannel!]!
+  user: PublicUser!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -71,6 +72,7 @@ type Campaign {
   description: String!
   channelType: CampaignChannel!
   status: CampaignStatus!
+  user: PublicUser!
   contacts: [Contact!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -119,9 +121,32 @@ type CampaignStats {
   campaignsByChannel: CampaignChannelStats!
 }
 
+type BulkCreateContactError {
+  index: Int!
+  error: String!
+}
+
+type BulkCreateContactSummary {
+  total: Int!
+  successful: Int!
+  failed: Int!
+}
+
+type BulkCreateContactResponse {
+  created: [Contact!]!
+  errors: [BulkCreateContactError!]!
+  summary: BulkCreateContactSummary!
+}
+
+type ContactsResponse {
+  contacts: [Contact!]!
+  pagination: PaginationInfo!
+}
+
 type Query {
-  campaign(id: String!): Campaign!
+  contact(id: String!): Contact!
   campaigns(page: Int = 1, limit: Int = 20, filters: CampaignFiltersInput): CampaignsResponse!
+  campaign(id: String!): Campaign!
   campaignStats: CampaignStats!
   currentUser: User
 }
@@ -149,6 +174,7 @@ enum SortOrder {
 
 type Mutation {
   createContact(input: CreateContactInput!): Contact!
+  bulkCreateContact(input: BulkCreateContactInput!): BulkCreateContactResponse!
   createCampaign(input: CreateCampaignInput!): Campaign!
   addContactsToCampaign(input: AddContactsToCampaignInput!): Campaign!
   login(input: LoginUserInput!): LoginResponse!
@@ -163,6 +189,10 @@ input CreateContactInput {
 input CreateContactChannelInput {
   type: ContactType!
   value: String!
+}
+
+input BulkCreateContactInput {
+  contacts: [CreateContactInput!]!
 }
 
 input CreateCampaignInput {

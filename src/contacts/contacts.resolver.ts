@@ -10,6 +10,7 @@ import { BulkCreateContactResponse } from './types/bulk-create-contact-response.
 import { BulkCreateContactInput } from './inputs/bulk-create-contact.input';
 import { PaginationArgs } from 'src/commom/inputs/pagination-args.input';
 import { ContactFilterInput } from './inputs/contact-filter.input';
+import { ContactsResponse } from './types/contacts-response.type';
 
 @Resolver(() => Contact)
 export class ContactsResolver {
@@ -25,7 +26,7 @@ export class ContactsResolver {
     return await this.contactsService.findById(id, userId);
   }
 
-  @Query(() => ContactsResolver)
+  @Query(() => ContactsResponse)
   @UseGuards(JwtAuthGuard)
   async campaigns(
     @Context() context: { req: { user: JwtPayload } },
