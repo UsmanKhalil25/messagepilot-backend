@@ -3,6 +3,7 @@ import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { CampaignChannel } from '../enums/campaign-channel.enum';
 import { CampaignStatus } from '../enums/campaign-status.enum';
 import { Contact } from 'src/contacts/types/contact.type';
+import { PublicUser } from 'src/users/types/public-user.type';
 
 @ObjectType()
 export class Campaign {
@@ -21,8 +22,12 @@ export class Campaign {
   @Field(() => CampaignStatus)
   status: CampaignStatus;
 
+  @Field(() => PublicUser)
+  user: PublicUser;
+
   @Field(() => [Contact])
   contacts: Contact[];
+
   @Field()
   createdAt: Date;
 
