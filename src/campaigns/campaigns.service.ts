@@ -120,7 +120,6 @@ export class CampaignsService {
     paginationArgs: PaginationArgs,
     filters?: CampaignFiltersInput,
   ): Promise<CampaignsResponse> {
-
     if (!userId) {
       throw new BadRequestException('User id is required');
     }
@@ -342,7 +341,7 @@ export class CampaignsService {
     if (!userId) {
       throw new BadRequestException('User id is required');
     }
-    
+
     const user = await this.usersRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -352,17 +351,17 @@ export class CampaignsService {
       const results = await this.campaignsRepository
         .createQueryBuilder('campaign')
         .select([
-          'COUNT(*) AS totalCampaigns',
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) AS draftCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) AS queuedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS activeCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS completedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS failedCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) AS emailCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) AS smsCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) AS whatsappCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) AS slackCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) AS discordCount`,
+          'COUNT(*) AS "totalCampaigns"',
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) AS "draftCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) AS "queuedCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS "activeCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS "completedCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS "failedCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) AS "emailCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) AS "smsCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) AS "whatsappCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) AS "slackCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) AS "discordCount"`,
         ])
         .where('campaign.userId = :userId', { userId })
         .getRawOne<{
