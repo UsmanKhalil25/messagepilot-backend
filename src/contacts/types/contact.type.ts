@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { ContactChannel } from 'src/contact-channel/types/contact-channel.type';
+import { PublicUser } from 'src/users/types/public-user.type';
 
 @ObjectType()
 export class Contact {
@@ -11,6 +12,9 @@ export class Contact {
 
   @Field(() => [ContactChannel])
   contactChannels: ContactChannel[];
+
+  @Field(() => PublicUser)
+  user: PublicUser;
 
   @Field()
   createdAt: Date;

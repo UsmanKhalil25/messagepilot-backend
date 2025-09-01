@@ -29,7 +29,7 @@ import { CampaignFiltersInput } from './inputs/campaign-filters.input';
 import { CampaignsResponse } from './types/campaigns-response.type';
 import { isValidDateString } from 'src/commom/utils/date.utils';
 import { CampaignStats } from './types/campaign-stats.type';
-import { CampaignChannel } from './enums/campaign-channel.enum';
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 
 const CREATABLE_CAMPAIGN_STATUSES = [
   CampaignStatus.DRAFT,
@@ -41,6 +41,9 @@ export class CampaignsService {
   constructor(
     @InjectRepository(Campaign)
     private readonly campaignsRepository: Repository<Campaign>,
+
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
 
   async createCampaign(
@@ -48,7 +51,7 @@ export class CampaignsService {
     userId: string,
   ): Promise<Campaign> {
     if (!userId) {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('User id is required');
     }
 
     if (!input.title?.trim()) {
@@ -64,14 +67,15 @@ export class CampaignsService {
         `Invalid status "${input.status}" for campaign creation. Only "draft" and "queued" are allowed.`,
       );
     }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     return await this.campaignsRepository.manager.transaction(
       async (manager) => {
         try {
-          const user = await manager.findOne(User, { where: { id: userId } });
-          if (!user) {
-            throw new NotFoundException('User not found');
-          }
-
           const campaign = manager.create(Campaign, {
             title: input.title.trim(),
             description: input.description?.trim(),
@@ -115,9 +119,14 @@ export class CampaignsService {
     userId: string,
     paginationArgs: PaginationArgs,
     filters?: CampaignFiltersInput,
-  ): Promise<CampaignsResponse | void> {
+  ): Promise<CampaignsResponse> {
     if (!userId) {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('User id is required');
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     const { page = 1, limit = 10 } = paginationArgs;
@@ -201,16 +210,72 @@ export class CampaignsService {
     };
   }
 
+  async findById(campaignId: string, userId: string): Promise<Campaign> {
+    if (!campaignId) {
+      throw new BadRequestException('Campaign id is required');
+    }
+
+    if (!userId) {
+      throw new BadRequestException('User id is required');
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    try {
+      const campaign = await this.campaignsRepository.findOne({
+        where: {
+          id: campaignId,
+          user: { id: userId },
+        },
+        relations: ['user', 'contacts', 'contacts.contactChannels'],
+      });
+
+      if (!campaign) {
+        throw new NotFoundException(
+          `Campaign with ID ${campaignId} not found or you don't have permission to access it`,
+        );
+      }
+
+      return campaign;
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException
+      ) {
+        throw error;
+      }
+
+      throw new InternalServerErrorException(
+        'Failed to retrieve campaign',
+        error instanceof Error ? error.message : String(error),
+      );
+    }
+  }
+
   async addContacts(
     input: AddContactsToCampaignInput,
     userId: string,
   ): Promise<Campaign> {
     const { campaignId, contactIds } = input;
 
-    if (!campaignId || !contactIds?.length || !userId) {
-      throw new BadRequestException(
-        'Campaign ID, Contact IDs, and User ID are required',
-      );
+    if (!userId) {
+      throw new BadRequestException('User id is required');
+    }
+
+    if (!campaignId) {
+      throw new BadRequestException('Campaign id is required');
+    }
+
+    if (!contactIds.length) {
+      throw new BadRequestException('At least one contact id is required');
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     return await this.campaignsRepository.manager.transaction(
@@ -272,66 +337,28 @@ export class CampaignsService {
     );
   }
 
-  async findById(campaignId: string, userId: string): Promise<Campaign> {
-    if (!campaignId) {
-      throw new BadRequestException('Campaign ID is required');
-    }
-
-    if (!userId) {
-      throw new BadRequestException('User ID is required');
-    }
-
-    try {
-      const campaign = await this.campaignsRepository.findOne({
-        where: {
-          id: campaignId,
-          user: { id: userId },
-        },
-        relations: ['user', 'contacts', 'contacts.contactChannels'],
-      });
-
-      if (!campaign) {
-        throw new NotFoundException(
-          `Campaign with ID ${campaignId} not found or you don't have permission to access it`,
-        );
-      }
-
-      return campaign;
-    } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException
-      ) {
-        throw error;
-      }
-
-      throw new InternalServerErrorException(
-        'Failed to retrieve campaign',
-        error instanceof Error ? error.message : String(error),
-      );
-    }
-  }
-
   async getCampaignsStats(userId: string): Promise<CampaignStats> {
     if (!userId) {
-      throw new BadRequestException('User ID is required');
+      throw new BadRequestException('User id is required');
+    }
+
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     try {
       const results = await this.campaignsRepository
         .createQueryBuilder('campaign')
         .select([
-          'COUNT(*) AS totalCampaigns',
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) AS draftCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) AS queuedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS activeCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS completedCount`,
-          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS failedCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.EMAIL}' THEN 1 ELSE 0 END) AS emailCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SMS}' THEN 1 ELSE 0 END) AS smsCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.WHATSAPP}' THEN 1 ELSE 0 END) AS whatsappCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.SLACK}' THEN 1 ELSE 0 END) AS slackCount`,
-          `SUM(CASE WHEN campaign.channelType = '${CampaignChannel.DISCORD}' THEN 1 ELSE 0 END) AS discordCount`,
+          'COUNT(*) AS "totalCampaigns"',
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.DRAFT}' THEN 1 ELSE 0 END) AS "draftCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.QUEUED}' THEN 1 ELSE 0 END) AS "queuedCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.ACTIVE}' THEN 1 ELSE 0 END) AS "activeCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.COMPLETED}' THEN 1 ELSE 0 END) AS "completedCount"`,
+          `SUM(CASE WHEN campaign.status = '${CampaignStatus.FAILED}' THEN 1 ELSE 0 END) AS "failedCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CommunicationChannel.EMAIL}' THEN 1 ELSE 0 END) AS "emailCount"`,
+          `SUM(CASE WHEN campaign.channelType = '${CommunicationChannel.SMS}' THEN 1 ELSE 0 END) AS "smsCount"`,
         ])
         .where('campaign.userId = :userId', { userId })
         .getRawOne<{
@@ -343,9 +370,6 @@ export class CampaignsService {
           failedCount: string;
           emailCount: string;
           smsCount: string;
-          whatsappCount: string;
-          slackCount: string;
-          discordCount: string;
         }>();
 
       return {
@@ -360,9 +384,6 @@ export class CampaignsService {
         campaignsByChannel: {
           email: Number(results?.emailCount) || 0,
           sms: Number(results?.smsCount) || 0,
-          whatsapp: Number(results?.whatsappCount) || 0,
-          slack: Number(results?.slackCount) || 0,
-          discord: Number(results?.discordCount) || 0,
         },
       };
     } catch (error) {

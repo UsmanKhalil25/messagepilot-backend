@@ -46,21 +46,22 @@ type PaginationInfo {
 
 type ContactChannel {
   id: ID!
-  type: ContactType!
+  type: CommunicationChannel!
   value: String!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
 
-enum ContactType {
+enum CommunicationChannel {
   EMAIL
-  PHONE
+  SMS
 }
 
 type Contact {
   id: ID!
   name: String!
   contactChannels: [ContactChannel!]!
+  user: PublicUser!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -69,19 +70,12 @@ type Campaign {
   id: ID!
   title: String!
   description: String!
-  channelType: CampaignChannel!
+  channelType: CommunicationChannel!
   status: CampaignStatus!
+  user: PublicUser!
   contacts: [Contact!]!
   createdAt: DateTime!
   updatedAt: DateTime!
-}
-
-enum CampaignChannel {
-  EMAIL
-  SMS
-  WHATSAPP
-  SLACK
-  DISCORD
 }
 
 enum CampaignStatus {
@@ -108,9 +102,6 @@ type CampaignStatusStats {
 type CampaignChannelStats {
   email: Int!
   sms: Int!
-  whatsapp: Int!
-  slack: Int!
-  discord: Int!
 }
 
 type CampaignStats {
@@ -119,11 +110,54 @@ type CampaignStats {
   campaignsByChannel: CampaignChannelStats!
 }
 
+type BulkCreateContactError {
+  index: Int!
+  error: String!
+}
+
+type BulkCreateContactSummary {
+  total: Int!
+  successful: Int!
+  failed: Int!
+}
+
+type BulkCreateContactResponse {
+  created: [Contact!]!
+  errors: [BulkCreateContactError!]!
+  summary: BulkCreateContactSummary!
+}
+
+type ContactsResponse {
+  contacts: [Contact!]!
+  pagination: PaginationInfo!
+}
+
 type Query {
+  contact(id: String!): Contact!
+  contacts(page: Int = 1, limit: Int = 20, filters: ContactFilterInput): ContactsResponse!
   campaign(id: String!): Campaign!
   campaigns(page: Int = 1, limit: Int = 20, filters: CampaignFiltersInput): CampaignsResponse!
   campaignStats: CampaignStats!
   currentUser: User
+}
+
+input ContactFilterInput {
+  search: String
+  createdAfter: String
+  createdBefore: String
+  sortBy: ContactSortBy = CREATED_AT
+  sortOrder: SortOrder = DESC
+}
+
+enum ContactSortBy {
+  CREATED_AT
+  NAME
+  UPDATED_AT
+}
+
+enum SortOrder {
+  ASC
+  DESC
 }
 
 input CampaignFiltersInput {
@@ -142,13 +176,9 @@ enum CampaignSortBy {
   UPDATED_AT
 }
 
-enum SortOrder {
-  ASC
-  DESC
-}
-
 type Mutation {
   createContact(input: CreateContactInput!): Contact!
+  bulkCreateContact(input: BulkCreateContactInput!): BulkCreateContactResponse!
   createCampaign(input: CreateCampaignInput!): Campaign!
   addContactsToCampaign(input: AddContactsToCampaignInput!): Campaign!
   login(input: LoginUserInput!): LoginResponse!
@@ -161,14 +191,18 @@ input CreateContactInput {
 }
 
 input CreateContactChannelInput {
-  type: ContactType!
+  type: CommunicationChannel!
   value: String!
+}
+
+input BulkCreateContactInput {
+  contacts: [CreateContactInput!]!
 }
 
 input CreateCampaignInput {
   title: String!
   description: String!
-  channelType: CampaignChannel!
+  channelType: CommunicationChannel!
   status: CampaignStatus
   contactIds: [String!]
 }

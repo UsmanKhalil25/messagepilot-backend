@@ -1,5 +1,6 @@
 import {
   Entity,
+  Unique,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
@@ -14,6 +15,7 @@ import { User } from 'src/users/user.entity';
 import { ContactChannel } from 'src/contact-channel/contact-channel.entity';
 
 @Entity()
+@Unique(['name', 'user'])
 export class Contact {
   @PrimaryGeneratedColumn('uuid')
   id: string;

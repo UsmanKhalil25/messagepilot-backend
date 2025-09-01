@@ -1,12 +1,12 @@
 import { InputType, Field } from '@nestjs/graphql';
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { ContactType } from '../enums/contact-type.enum';
 
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 @InputType()
 export class CreateContactChannelInput {
-  @Field(() => ContactType)
-  @IsEnum(ContactType)
-  type: ContactType;
+  @Field(() => CommunicationChannel)
+  @IsEnum(CommunicationChannel)
+  type: CommunicationChannel;
 
   @Field()
   @IsString()

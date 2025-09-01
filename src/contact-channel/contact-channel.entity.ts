@@ -9,7 +9,7 @@ import {
   ManyToOne,
 } from 'typeorm';
 
-import { ContactType } from './enums/contact-type.enum';
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 
 @Entity()
 @Unique(['type', 'value'])
@@ -19,9 +19,9 @@ export class ContactChannel {
 
   @Column({
     type: 'enum',
-    enum: ContactType,
+    enum: CommunicationChannel,
   })
-  type: ContactType;
+  type: CommunicationChannel;
 
   @Column()
   value: string;

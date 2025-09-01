@@ -10,9 +10,9 @@ import {
 } from 'typeorm';
 
 import { User } from 'src/users/user.entity';
-import { CampaignChannel } from './enums/campaign-channel.enum';
-import { CampaignStatus } from './enums/campaign-status.enum';
 import { Contact } from 'src/contacts/contact.entity';
+import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
+import { CampaignStatus } from './enums/campaign-status.enum';
 
 @Entity()
 export class Campaign {
@@ -27,9 +27,9 @@ export class Campaign {
 
   @Column({
     type: 'enum',
-    enum: CampaignChannel,
+    enum: CommunicationChannel,
   })
-  channelType: CampaignChannel;
+  channelType: CommunicationChannel;
 
   @Column({
     type: 'enum',
