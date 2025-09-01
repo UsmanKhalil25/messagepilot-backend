@@ -12,7 +12,7 @@ import {
 import { CommunicationChannel } from 'src/commom/enums/communication-channel.enum';
 
 @Entity()
-@Unique(['type', 'value', 'contact'])
+@Unique(['type', 'value'])
 export class ContactChannel {
   @PrimaryGeneratedColumn('uuid')
   id: string;

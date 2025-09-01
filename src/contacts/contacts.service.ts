@@ -251,6 +251,7 @@ export class ContactsService {
       },
     );
   }
+
   async bulkCreateContacts(input: BulkCreateContactInput, userId: string) {
     if (!userId) {
       throw new BadRequestException('User id is required');

@@ -45,7 +45,13 @@ import { AuthTokenMiddleware } from './commom/middlewares/auth-token.middleware'
         playground: false,
         plugins: [ApolloServerPluginLandingPageLocalDefault()],
         autoSchemaFile: path.join(process.cwd(), 'src/schema.gql'),
-        include: [AuthModule, UsersModule, CampaignsModule, ContactsModule, ContactChannelModule],
+        include: [
+          AuthModule,
+          UsersModule,
+          CampaignsModule,
+          ContactsModule,
+          ContactChannelModule,
+        ],
         cors: {
           origin: configService.get<string>('app.corsOrigin'),
           credentials: true,
